@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Birla Opus Chatbot</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 450px;
+            height: 90vh;
+            max-height: 700px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, #e63946 0%, #c1121f 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .header img {
+            height: 40px;
+            margin-bottom: 10px;
+        }
+
+        .header h1 {
+            font-size: 1.5rem;
+            margin-bottom: 5px;
+        }
+
+        .header p {
+            font-size: 0.85rem;
+            opacity: 0.9;
+        }
+
+        /* Auth Section */
+        .auth-section {
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .auth-section.hidden {
+            display: none;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .form-group label {
+            font-size: 0.9rem;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .form-group input, .form-group select {
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #e63946;
+        }
+
+        .btn {
+            padding: 14px 20px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, opacity 0.2s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #e63946 0%, #c1121f 100%);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .demo-info {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            border-radius: 10px;
+            padding: 15px;
+            font-size: 0.85rem;
+            color: #856404;
+        }
+
+        .demo-info strong {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        /* Chat Section */
+        .chat-section {
+            flex: 1;
+            display: none;
+            flex-direction: column;
+        }
+
+        .chat-section.active {
+            display: flex;
+        }
+
+        .user-info {
+            background: #f8f9fa;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .user-info span {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .user-type-badge {
+            background: #e63946;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 15px;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+        }
+
+        .messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .message {
+            max-width: 85%;
+            padding: 12px 16px;
+            border-radius: 18px;
+            font-size: 0.95rem;
+            line-height: 1.4;
+        }
+
+        .message.user {
+            background: linear-gradient(135deg, #e63946 0%, #c1121f 100%);
+            color: white;
+            align-self: flex-end;
+            border-bottom-right-radius: 5px;
+        }
+
+        .message.assistant {
+            background: #f0f0f0;
+            color: #333;
+            align-self: flex-start;
+            border-bottom-left-radius: 5px;
+        }
+
+        .message.assistant pre {
+            background: #e0e0e0;
+            padding: 10px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-size: 0.85rem;
+            margin: 10px 0;
+        }
+
+        .typing-indicator {
+            display: flex;
+            gap: 5px;
+            padding: 15px;
+            align-self: flex-start;
+        }
+
+        .typing-indicator span {
+            width: 8px;
+            height: 8px;
+            background: #ccc;
+            border-radius: 50%;
+            animation: typing 1s infinite;
+        }
+
+        .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
+        .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes typing {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+
+        /* Input Area */
+        .input-area {
+            padding: 15px 20px;
+            border-top: 1px solid #e0e0e0;
+            display: flex;
+            gap: 10px;
+            background: white;
+        }
+
+        .input-area input {
+            flex: 1;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 25px;
+            font-size: 1rem;
+            outline: none;
+        }
+
+        .input-area input:focus {
+            border-color: #e63946;
+        }
+
+        .input-area button {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            border: none;
+            background: linear-gradient(135deg, #e63946 0%, #c1121f 100%);
+            color: white;
+            cursor: pointer;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Language Selector */
+        .language-selector {
+            padding: 10px 20px;
+            background: #f8f9fa;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .language-selector select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 0.9rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 480px) {
+            body {
+                padding: 0;
+            }
+            .container {
+                height: 100vh;
+                max-height: none;
+                border-radius: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🎨 Birla Opus</h1>
+            <p>AI-Powered Paint Assistant</p>
+        </div>
+
+        <!-- Auth Section -->
+        <div class="auth-section" id="authSection">
+            <div class="demo-info">
+                <strong>Demo Mode</strong>
+                Test numbers: 9876543210 (Sales), 9876543211 (Dealer), 9876543212 (Contractor), 9876543213 (Painter), 1234567890 (Tester)
+            </div>
+
+            <div class="form-group">
+                <label>Phone Number</label>
+                <input type="tel" id="phoneInput" placeholder="Enter 10-digit mobile number" maxlength="10">
+            </div>
+
+            <button class="btn btn-primary" id="requestOtpBtn" onclick="requestOTP()">
+                Request OTP
+            </button>
+
+            <div class="form-group" id="otpGroup" style="display: none;">
+                <label>Enter OTP</label>
+                <input type="text" id="otpInput" placeholder="Enter 6-digit OTP" maxlength="6">
+            </div>
+
+            <button class="btn btn-primary" id="verifyOtpBtn" style="display: none;" onclick="verifyOTP()">
+                Verify & Start Chat
+            </button>
+
+            <p id="authMessage" style="text-align: center; color: #666; font-size: 0.9rem;"></p>
+        </div>
+
+        <!-- Chat Section -->
+        <div class="chat-section" id="chatSection">
+            <div class="user-info">
+                <span id="userName">Welcome</span>
+                <span class="user-type-badge" id="userTypeBadge">User</span>
+            </div>
+
+            <div class="messages" id="messagesContainer">
+                <!-- Messages will be added here -->
+            </div>
+
+            <div class="language-selector">
+                <select id="languageSelect" onchange="changeLanguage()">
+                    <option value="en">English</option>
+                    <option value="hi">हिंदी (Hindi)</option>
+                    <option value="ta">தமிழ் (Tamil)</option>
+                    <option value="te">తెలుగు (Telugu)</option>
+                    <option value="kn">ಕನ್ನಡ (Kannada)</option>
+                    <option value="ml">മലയാളം (Malayalam)</option>
+                    <option value="bn">বাংলা (Bengali)</option>
+                    <option value="mr">मराठी (Marathi)</option>
+                    <option value="gu">ગુજરાતી (Gujarati)</option>
+                </select>
+            </div>
+
+            <div class="input-area">
+                <input type="text" id="messageInput" placeholder="Type your message..." onkeypress="handleKeyPress(event)">
+                <button onclick="sendMessage()">➤</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Configuration
+        const API_BASE = '/api/v1';
+        let accessToken = null;
+        let sessionId = null;
+        let currentLanguage = 'en';
+        let userInfo = null;
+
+        // Auth Functions
+        async function requestOTP() {
+            const phone = document.getElementById('phoneInput').value.trim();
+            if (phone.length !== 10) {
+                showMessage('Please enter a valid 10-digit phone number');
+                return;
+            }
+
+            const btn = document.getElementById('requestOtpBtn');
+            btn.disabled = true;
+            btn.textContent = 'Sending...';
+
+            try {
+                const response = await fetch(`${API_BASE}/auth/request-otp`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ phone_number: '91' + phone })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    document.getElementById('otpGroup').style.display = 'block';
+                    document.getElementById('verifyOtpBtn').style.display = 'block';
+
+                    let msg = data.message;
+                    if (data.demo_otp) {
+                        msg += ` (Demo OTP: ${data.demo_otp})`;
+                    }
+                    showMessage(msg);
+                } else {
+                    showMessage(data.detail || 'Failed to send OTP');
+                }
+            } catch (error) {
+                showMessage('Connection error. Please try again.');
+            }
+
+            btn.disabled = false;
+            btn.textContent = 'Request OTP';
+        }
+
+        async function verifyOTP() {
+            const phone = document.getElementById('phoneInput').value.trim();
+            const otp = document.getElementById('otpInput').value.trim();
+
+            if (otp.length < 4) {
+                showMessage('Please enter the OTP');
+                return;
+            }
+
+            const btn = document.getElementById('verifyOtpBtn');
+            btn.disabled = true;
+            btn.textContent = 'Verifying...';
+
+            try {
+                const response = await fetch(`${API_BASE}/auth/verify-otp`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        phone_number: '91' + phone,
+                        otp_code: otp
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    accessToken = data.access_token;
+                    sessionId = generateSessionId();
+
+                    // Get user info
+                    await getUserInfo();
+
+                    // Switch to chat
+                    document.getElementById('authSection').classList.add('hidden');
+                    document.getElementById('chatSection').classList.add('active');
+
+                    // Welcome message
+                    addMessage('assistant', `Welcome to Birla Opus! I'm here to help you with paint products, pricing, applications, dealer information, and more. How can I assist you today?`);
+                } else {
+                    showMessage(data.detail || 'Invalid OTP');
+                }
+            } catch (error) {
+                showMessage('Connection error. Please try again.');
+            }
+
+            btn.disabled = false;
+            btn.textContent = 'Verify & Start Chat';
+        }
+
+        async function getUserInfo() {
+            try {
+                const response = await fetch(`${API_BASE}/auth/me`, {
+                    headers: { 'Authorization': `Bearer ${accessToken}` }
+                });
+
+                if (response.ok) {
+                    userInfo = await response.json();
+                    document.getElementById('userName').textContent = userInfo.name || 'User';
+                    document.getElementById('userTypeBadge').textContent = userInfo.user_type;
+                }
+            } catch (error) {
+                console.error('Failed to get user info:', error);
+            }
+        }
+
+        // Chat Functions
+        async function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const message = input.value.trim();
+
+            if (!message) return;
+
+            // Add user message
+            addMessage('user', message);
+            input.value = '';
+
+            // Show typing indicator
+            showTyping();
+
+            try {
+                const response = await fetch(`${API_BASE}/chat`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${accessToken}`,
+                        'X-Session-ID': sessionId
+                    },
+                    body: JSON.stringify({
+                        message: message,
+                        language: currentLanguage
+                    })
+                });
+
+                hideTyping();
+
+                if (response.ok) {
+                    const data = await response.json();
+                    addMessage('assistant', data.response);
+                } else {
+                    addMessage('assistant', 'Sorry, I encountered an error. Please try again.');
+                }
+            } catch (error) {
+                hideTyping();
+                addMessage('assistant', 'Connection error. Please check your internet connection.');
+            }
+        }
+
+        function addMessage(role, content) {
+            const container = document.getElementById('messagesContainer');
+            const div = document.createElement('div');
+            div.className = `message ${role}`;
+
+            // Simple markdown-like formatting
+            content = content
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\n/g, '<br>')
+                .replace(/```([\s\S]*?)```/g, '<pre>$1</pre>');
+
+            div.innerHTML = content;
+            container.appendChild(div);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function showTyping() {
+            const container = document.getElementById('messagesContainer');
+            const div = document.createElement('div');
+            div.className = 'typing-indicator';
+            div.id = 'typingIndicator';
+            div.innerHTML = '<span></span><span></span><span></span>';
+            container.appendChild(div);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function hideTyping() {
+            const typing = document.getElementById('typingIndicator');
+            if (typing) typing.remove();
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+
+        function changeLanguage() {
+            currentLanguage = document.getElementById('languageSelect').value;
+        }
+
+        function showMessage(msg) {
+            document.getElementById('authMessage').textContent = msg;
+        }
+
+        function generateSessionId() {
+            return 'sess_' + Math.random().toString(36).substr(2, 9) + Date.now().toString(36);
+        }
+    </script>
+</body>
+</html>

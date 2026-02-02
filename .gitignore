@@ -1,0 +1,25 @@
+# Environment
+.env
+venv/
+__pycache__/
+*.pyc
+
+# Database
+*.db
+*.sqlite
+
+# Test files
+test_*.py
+*.log
+
+# IDE
+.vscode/
+.idea/
+
+# Docker volumes
+docker/postgres_data/
+docker/redis_data/
+
+# Temp
+*.tmp
+.DS_Store

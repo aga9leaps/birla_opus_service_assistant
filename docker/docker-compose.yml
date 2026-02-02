@@ -1,0 +1,90 @@
+version: '3.9'
+
+services:
+  # ==========================================================================
+  # Birla Opus Chatbot API
+  # ==========================================================================
+  api:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    container_name: birla-opus-api
+    ports:
+      - "8000:8000"
+    env_file:
+      - ../.env
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/birla_opus
+      - REDIS_URL=redis://redis:6379/0
+      - DEBUG=true
+    volumes:
+      - ../knowledge_base:/app/knowledge_base:ro
+      - ../src:/app/src
+      - ../config:/app/config
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ==========================================================================
+  # PostgreSQL Database
+  # ==========================================================================
+  db:
+    image: postgres:16-alpine
+    container_name: birla-opus-db
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=birla_opus
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # ==========================================================================
+  # Redis Cache
+  # ==========================================================================
+  redis:
+    image: redis:7-alpine
+    container_name: birla-opus-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+
+  # ==========================================================================
+  # Web UI (Optional - Nginx serving static files)
+  # ==========================================================================
+  web:
+    image: nginx:alpine
+    container_name: birla-opus-web
+    ports:
+      - "3000:80"
+    volumes:
+      - ../web:/usr/share/nginx/html:ro
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - api
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  default:
+    name: birla-opus-network
