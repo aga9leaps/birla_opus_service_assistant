@@ -21,8 +21,8 @@ python-dotenv>=1.0.0
 # Authentication
 PyJWT>=2.8.0
 
-# LLM - Google Gemini
-google-generativeai>=0.3.2
+# LLM - Google Gemini via Vertex AI
+google-cloud-aiplatform>=1.38.0
 
 # HTTP Client
 httpx>=0.26.0

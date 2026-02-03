@@ -26,10 +26,11 @@ class Settings(BaseSettings):
     # Redis
     REDIS_URL: str = "redis://localhost:6379/0"
 
-    # LLM - Using Gemini 3 Flash Preview
-    LLM_PROVIDER: str = "google"
-    GEMINI_API_KEY: Optional[str] = None
-    LLM_MODEL: str = "gemini-3-flash-preview"  # Latest, fastest
+    # LLM - Using Vertex AI with Gemini
+    LLM_PROVIDER: str = "vertex_ai"
+    VERTEX_PROJECT_ID: Optional[str] = None
+    VERTEX_LOCATION: str = "us-central1"
+    LLM_MODEL: str = "gemini-2.5-flash"  # Vertex AI model name
     LLM_TEMPERATURE: float = 0.4  # Balanced: conversational but grounded
     LLM_MAX_TOKENS: int = 1024
 

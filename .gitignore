@@ -20,6 +20,9 @@ test_*.py
 docker/postgres_data/
 docker/redis_data/
 
+# Credentials (NEVER commit these)
+docker/credentials/
+
 # Temp
 *.tmp
 .DS_Store

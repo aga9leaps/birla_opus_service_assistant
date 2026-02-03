@@ -27,19 +27,22 @@ class ChatService:
         self._llm_client = None
 
     def _get_llm_client(self):
-        """Get or initialize LLM client."""
+        """Get or initialize LLM client using Vertex AI."""
         if self._llm_client is None:
             try:
-                import google.generativeai as genai
+                import vertexai
+                from vertexai.generative_models import GenerativeModel
 
-                api_key = os.getenv("GEMINI_API_KEY") or settings.GEMINI_API_KEY
-                if api_key:
-                    genai.configure(api_key=api_key)
-                    self._llm_client = genai.GenerativeModel(settings.LLM_MODEL)
+                project_id = os.getenv("VERTEX_PROJECT_ID") or settings.VERTEX_PROJECT_ID
+                location = os.getenv("VERTEX_LOCATION", settings.VERTEX_LOCATION)
+
+                if project_id:
+                    vertexai.init(project=project_id, location=location)
+                    self._llm_client = GenerativeModel(settings.LLM_MODEL)
                 else:
-                    print("Warning: GEMINI_API_KEY not set, using mock responses")
+                    print("Warning: VERTEX_PROJECT_ID not set, using mock responses")
             except ImportError:
-                print("Warning: google-generativeai not installed, using mock responses")
+                print("Warning: google-cloud-aiplatform not installed, using mock responses")
 
         return self._llm_client
 
