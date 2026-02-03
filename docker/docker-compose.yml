@@ -83,21 +83,6 @@ services:
       - api
     restart: unless-stopped
 
-  # ==========================================================================
-  # ngrok Tunnel for WhatsApp Webhook
-  # ==========================================================================
-  ngrok:
-    image: ngrok/ngrok:latest
-    container_name: birla-opus-ngrok
-    command: http api:8000 --log stdout
-    env_file:
-      - ../.env
-    ports:
-      - "4040:4040"
-    depends_on:
-      - api
-    restart: unless-stopped
-
 volumes:
   postgres_data:
   redis_data:
