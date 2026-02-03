@@ -240,6 +240,13 @@ def seed_demo_users(db: Session):
             "name": "Test User",
             "region": "All",
         },
+        # Ravindra Manvi - Tester
+        {
+            "phone_number": "919611045139",
+            "user_type": UserType.TESTER,
+            "name": "Ravindra Manvi",
+            "region": "All",
+        },
         # Add a common test number
         {
             "phone_number": "911234567890",

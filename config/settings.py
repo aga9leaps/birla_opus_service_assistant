@@ -26,11 +26,11 @@ class Settings(BaseSettings):
     # Redis
     REDIS_URL: str = "redis://localhost:6379/0"
 
-    # LLM - Using Gemini 3 Flash for multi-language support
+    # LLM - Using Gemini 3 Flash Preview
     LLM_PROVIDER: str = "google"
     GEMINI_API_KEY: Optional[str] = None
-    LLM_MODEL: str = "gemini-2.0-flash"  # Gemini 3 Flash for Indian languages
-    LLM_TEMPERATURE: float = 0.7
+    LLM_MODEL: str = "gemini-3-flash-preview"  # Latest, fastest
+    LLM_TEMPERATURE: float = 0.4  # Balanced: conversational but grounded
     LLM_MAX_TOKENS: int = 1024
 
     # Embeddings
