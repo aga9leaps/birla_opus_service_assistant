@@ -17,7 +17,7 @@ from src.core.chat import ChatService
 from config.settings import get_settings
 
 settings = get_settings()
-router = APIRouter(prefix="/webhook", tags=["whatsapp"])
+router = APIRouter(prefix="/whatsapp", tags=["whatsapp"])
 
 # Meta WhatsApp API Configuration
 WHATSAPP_API_URL = "https://graph.facebook.com/v18.0"
@@ -34,7 +34,7 @@ onboarding_state = {}
 # Webhook Endpoints
 # ============================================================================
 
-@router.get("/whatsapp")
+@router.get("/webhook")
 async def verify_webhook(
     hub_mode: Optional[str] = Query(None, alias="hub.mode"),
     hub_challenge: Optional[str] = Query(None, alias="hub.challenge"),
@@ -47,7 +47,7 @@ async def verify_webhook(
     raise HTTPException(status_code=403, detail="Verification failed")
 
 
-@router.post("/whatsapp")
+@router.post("/webhook")
 async def handle_webhook(request: Request, db: Session = Depends(get_db)):
     """Handle incoming WhatsApp messages."""
     body = await request.body()

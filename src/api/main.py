@@ -114,7 +114,7 @@ async def global_exception_handler(request: Request, exc: Exception):
 
 # Include routes
 app.include_router(router, prefix=settings.API_PREFIX)
-app.include_router(whatsapp_router, prefix=settings.API_PREFIX)
+app.include_router(whatsapp_router, prefix="/api")
 
 
 # Root endpoint
